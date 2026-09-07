@@ -1,0 +1,22 @@
+# Etapa 1 — coleta
+requests
+
+# Etapa 2 — RAG
+pymupdf
+pdfplumber
+sentence-transformers
+chromadb
+tqdm
+
+# Etapa 3 — fine-tuning (QLoRA)
+transformers>=4.45.0
+peft>=0.12.0
+trl>=0.11.0
+bitsandbytes>=0.43.0
+accelerate>=0.34.0
+datasets>=2.21.0
+
+# Etapa 4 — implantação local (implantacao/ufop_ia.py)
+torch
+torchvision
+torchaudio
