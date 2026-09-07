@@ -38,7 +38,7 @@ O sistema final constrói um acervo digital de documentos oficiais da UFOP, inde
 
 ## Motivação
 
-A administração pública brasileira — e universidades federais em particular — produz um volume expressivo de documentos normativos cuja localização, interpretação e síntese consomem tempo considerável de servidores, docentes e discentes. A ausência de mecanismos automatizados de busca contribui para atrasos processuais, retrabalho e, em alguns casos, a aplicação de normas já revogadas.
+A administração pública brasileira — e universidades federais em particular, produz um volume expressivo de documentos normativos cuja localização, interpretação e síntese consomem tempo considerável de servidores, docentes e discentes. A ausência de mecanismos automatizados de busca contribui para atrasos processuais, retrabalho e, em alguns casos, a aplicação de normas já revogadas.
 
 O objetivo geral do projeto foi adaptar um modelo de linguagem de código aberto ao domínio da administração pública da UFOP, automatizando a extração e a consulta a documentos oficiais.
 
@@ -114,13 +114,13 @@ Como resposta às limitações de VRAM, foi **projetada** (mesclagem do adaptado
 ## Resultados
 
 - Base vetorial funcional com >10 mil segmentos indexados e recuperação semântica validada qualitativamente.
-- Adaptador QLoRA treinado com sucesso técnico sobre o Qwen2.5-1.5B-Instruct — porém com sinais de alucinação (respostas parcialmente desalinhadas do contexto recuperado), mesmo operando junto ao RAG.
-- O Qwen2.5-7B-Instruct **sem** ajuste fino adicional, combinado à mesma base de RAG, mostrou-se qualitativamente mais consistente com os documentos recuperados do que a variante menor ajustada — sugerindo que, neste estágio, a capacidade do modelo base influencia a fidelidade das respostas tanto quanto (ou mais que) o ajuste fino aplicado.
-- Diagnóstico e correção de uma falha crítica de implantação: a primeira versão do script de produção carregava apenas o modelo base, sem nunca aplicar o adaptador LoRA — corrigida antes dos testes com terceiros.
+- Adaptador QLoRA treinado com sucesso técnico sobre o Qwen2.5-1.5B-Instruct, porém com sinais de alucinação (respostas parcialmente desalinhadas do contexto recuperado), mesmo operando junto ao RAG.
+- O Qwen2.5-7B-Instruct **sem** ajuste fino adicional, combinado à mesma base de RAG, mostrou-se qualitativamente mais consistente com os documentos recuperados do que a variante menor ajustada, sugerindo que, neste estágio, a capacidade do modelo base influencia a fidelidade das respostas tanto quanto (ou mais que) o ajuste fino aplicado.
+- Diagnóstico e correção de uma falha crítica de implantação: a primeira versão do script de produção carregava apenas o modelo base, sem nunca aplicar o adaptador LoRA corrigida antes dos testes com terceiros.
 
 ## Limitações e lições aprendidas
 
-- **Nenhum adaptador LoRA foi treinado para o Qwen2.5-7B-Instruct** — a principal lacuna em aberto ao final do ciclo de IC. Isso impede tanto a avaliação quantitativa formal (precisão, revocação, F1 na extração de entidades; BLEU e avaliação humana na geração) quanto a validação empírica da estratégia de implantação GGUF.
+- **Nenhum adaptador LoRA foi treinado para o Qwen2.5-7B-Instruct**, a principal lacuna em aberto ao final do ciclo de IC. Isso impede tanto a avaliação quantitativa formal (precisão, revocação, F1 na extração de entidades; BLEU e avaliação humana na geração) quanto a validação empírica da estratégia de implantação GGUF.
 - Taxa de perda de ~21% entre PDFs convertidos e documentos de alta integridade, ainda não categorizada por tipo de falha.
 - Scraper sem mecanismo de nova tentativa (retry) nem verificação de duplicidade.
 - Comparação sistemática com/sem ajuste fino, prevista nos objetivos originais do projeto, permanece como trabalho futuro.
@@ -153,14 +153,14 @@ Como resposta às limitações de VRAM, foi **projetada** (mesclagem do adaptado
 └── README.md
 ```
 
-> As pastas `chromadb/` e `adapter/` (dados do banco vetorial e pesos do ajuste fino) não ficam neste repositório — são geradas pela Etapa 2 e Etapa 3, respectivamente, e devem ser colocadas ao lado de `ufop_ia.py` antes de rodar `iniciar.bat` (ver seção abaixo).
+> As pastas `chromadb/` e `adapter/` (dados do banco vetorial e pesos do ajuste fino) não ficam neste repositório, são geradas pela Etapa 2 e Etapa 3, respectivamente, e devem ser colocadas ao lado de `ufop_ia.py` antes de rodar `iniciar.bat` (ver seção abaixo).
 
 ### Sobre o `implantacao/ufop_ia.py`
 
 Script standalone que roda o assistente 100% localmente: verifica GPU/CUDA, carrega o `Qwen2.5-7B-Instruct` em 4 bits, aplica o adapter LoRA (se presente em `./adapter`) e responde perguntas com base no contexto recuperado do ChromaDB (`./chromadb`).
 
 Pontos que valem destaque:
-- Falha graciosamente com mensagens explicativas (sem GPU, sem VRAM suficiente, pasta `chromadb`/`adapter` ausente ou corrompida) — pensado para ser testado por terceiros sem conhecimento técnico, incluindo o orientador.
+- Falha graciosamente com mensagens explicativas (sem GPU, sem VRAM suficiente, pasta `chromadb`/`adapter` ausente ou corrompida), pensado para ser testado por terceiros sem conhecimento técnico, incluindo o orientador.
 - Se a pasta `adapter/` não existir, avisa e pergunta se o usuário quer continuar com o modelo base sem ajuste fino, em vez de falhar silenciosamente (correção da falha descrita em [Limitações](#limitações-e-lições-aprendidas): a primeira versão aplicava o base "cru" sem avisar).
 - **Atenção:** como nenhum adapter LoRA foi treinado ainda para o `Qwen2.5-7B-Instruct` (só para o 1.5B — ver [Limitações](#limitações-e-lições-aprendidas)), colocar o adaptador `modelo_ufop_adapter_v2` (treinado sobre o 1.5B) em `./adapter` causa erro de incompatibilidade de dimensões ("size mismatch"), capturado e reportado pelo script em vez de travar sem explicação.
 
